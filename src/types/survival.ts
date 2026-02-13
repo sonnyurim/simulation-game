@@ -64,7 +64,6 @@ export interface GameEvent {
 // --- Game State ---
 
 export type Screen =
-  | "intro"
   | "departmentSelect"
   | "playing"
   | "gameOver"

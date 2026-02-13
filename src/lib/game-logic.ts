@@ -34,7 +34,7 @@ function scaleNegativeEffect(value: number, multiplier: number): number {
 
 export function createInitialState(): GameState {
   return {
-    screen: "intro",
+    screen: "departmentSelect",
     department: null,
     turn: 0,
     resources: {

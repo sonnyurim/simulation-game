@@ -7,7 +7,6 @@ import { DepartmentSelect } from "@/components/survival/DepartmentSelect";
 import { EmergencySupply } from "@/components/survival/EmergencySupply";
 import { EventCard } from "@/components/survival/EventCard";
 import { GameOverScreen } from "@/components/survival/GameOverScreen";
-import { IntroScreen } from "@/components/survival/IntroScreen";
 import { ResourceBars } from "@/components/survival/ResourceBars";
 import { TurnCounter } from "@/components/survival/TurnCounter";
 import { VictoryScreen } from "@/components/survival/VictoryScreen";
@@ -52,9 +51,7 @@ export function GameContainer() {
 
   // Persist state on change
   useEffect(() => {
-    if (state.screen !== "intro") {
-      saveToSession(state);
-    }
+    saveToSession(state);
   }, [state]);
 
   // Advance to next event when needed — triggered lazily
@@ -71,10 +68,6 @@ export function GameContainer() {
       queueMicrotask(ensureEvent);
     }
   }, [state.screen, state.currentEvent, ensureEvent]);
-
-  const handleStart = useCallback(() => {
-    setState((prev) => ({ ...prev, screen: "departmentSelect" as const }));
-  }, []);
 
   const handleDepartmentSelect = useCallback((dept: Department) => {
     setState((prev) => selectDepartment(prev, dept));
@@ -107,10 +100,6 @@ export function GameContainer() {
   }, []);
 
   // --- Screen rendering ---
-
-  if (state.screen === "intro") {
-    return <IntroScreen onStart={handleStart} />;
-  }
 
   if (state.screen === "departmentSelect") {
     return <DepartmentSelect onSelect={handleDepartmentSelect} />;
@@ -146,7 +135,7 @@ export function GameContainer() {
   const eventToShow = state.currentEvent;
 
   return (
-    <div className="flex min-h-dvh flex-col justify-center gap-7 py-8">
+    <div className="flex min-h-dvh flex-col justify-center gap-5 py-6">
       <TurnCounter turn={state.turn} />
       <ResourceBars resources={state.resources} />
       <EmergencySupply
@@ -155,9 +144,9 @@ export function GameContainer() {
       />
 
       {eventToShow && (
-        <div className="rounded-xl border border-border bg-card p-7">
+        <div className="rounded-xl border border-border bg-card p-5">
           <EventCard event={eventToShow} />
-          <div className="mt-5 space-y-3">
+          <div className="mt-4 space-y-2.5">
             {eventToShow.choices.map((choice) => (
               <ChoiceButton
                 key={choice.id}

@@ -15,12 +15,12 @@ export function TurnCounter({ turn }: TurnCounterProps) {
 
   return (
     <div className="relative flex flex-col items-center gap-2">
-      <h1 className="text-5xl font-extrabold tracking-tight text-primary">
+      <h1 className="text-3xl font-extrabold tracking-tight text-primary sm:text-4xl">
         지금 우리 학교는
       </h1>
       <p
         className={cn(
-          "text-xl font-bold",
+          "text-base font-bold sm:text-lg",
           isLate ? "text-destructive animate-pulse" : "text-warning",
         )}
       >
@@ -29,7 +29,7 @@ export function TurnCounter({ turn }: TurnCounterProps) {
 
       <Link
         href="/ranking"
-        className="absolute right-0 top-2 flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        className="absolute right-0 top-1 flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:text-sm"
       >
         🏆 명예의 전당
       </Link>
