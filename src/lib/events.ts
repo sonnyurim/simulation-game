@@ -19,7 +19,7 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "e01_b",
-        text: "입구의 자판기만 뒤진다",
+        text: "입구의 자판기만 털어본다",
         effect: { food: 5, mental: 5, survivors: -3 },
         resultText: "과자와 음료를 꺼냈다. 소음에 놀란 동료 하나가 도망쳤다.",
       },
@@ -424,9 +424,10 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "e13_c",
-        text: "공구를 챙기기만 하고 나중에 만든다",
-        effect: { mental: -5, health: 3, food: -3 },
-        resultText: "공구는 확보했다. 당장은 방어력이 부족하다.",
+        text: "공구를 연마해 투척용 무기를 만든다",
+        effect: { mental: 5, health: -8, food: -3 },
+        resultText:
+          "투척용 칼과 표창을 급조했다. 원거리 견제가 가능해졌지만 위력은 제한적이다.",
       },
     ],
   },
@@ -515,9 +516,10 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "e16_c",
-        text: "옥상은 위험하니 포기한다",
-        effect: { mental: -8, food: -5, health: 3 },
-        resultText: "안전하게 돌아왔지만 물 부족 문제가 심각해지고 있다.",
+        text: "1층 처마에서 빗물을 받아 간이 여과한다",
+        effect: { food: 5, health: -5, mental: -3 },
+        resultText:
+          "양이 적고 불순물도 있지만 옥상보다 안전하게 물을 확보했다.",
       },
     ],
   },
@@ -532,7 +534,7 @@ export const EVENTS: readonly GameEvent[] = [
     choices: [
       {
         id: "e17_a",
-        text: "눈을 감고 처리한다",
+        text: "눈을 감고 보내준다",
         effect: { mental: -15, health: -5, survivors: 3 },
         resultText: "친구를 보냈다. 마음이 찢어지지만, 남은 사람들의 안전을 지켰다.",
       },
@@ -636,7 +638,7 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "e20_b",
-        text: "창문을 깨고 빠르게 뒤진다",
+        text: "창문을 깨고 빠르게 수색한다",
         effect: { food: 8, health: -8, mental: -8 },
         resultText: "유리 파편에 다쳤고 소음에 좀비가 몰려왔다. 조금만 챙기고 도망쳤다.",
       },
@@ -882,10 +884,10 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "m05_c",
-        text: "입구만 표시하고 나중을 대비한다",
-        effect: { mental: -5, health: 3, survivors: 3 },
+        text: "통로 입구에 함정을 설치해 방어용으로 활용한다",
+        effect: { mental: 5, health: -8, food: -5 },
         resultText:
-          "정보를 기록했다. 지금은 안전하지만 불안이 남는다.",
+          "통로에 함정을 설치했다. 탐험은 못 했지만 좀비가 이 경로로 오면 걸러낼 수 있다.",
       },
     ],
   },
@@ -1301,10 +1303,10 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "m18_c",
-        text: "함부로 건드리지 않고 봉쇄한다",
-        effect: { mental: -8, health: 3, food: -3 },
+        text: "무기고 정보를 다른 생존자 그룹에 알려 동맹을 제안한다",
+        effect: { mental: 5, survivors: 8, food: -8 },
         resultText:
-          "만약의 위험을 피했다. 하지만 무장할 기회를 놓친 것이 아쉽다.",
+          "정보를 대가로 동맹을 맺었다. 인력이 늘고 식량을 교환했지만 무기는 나눠야 한다.",
       },
     ],
   },
@@ -1409,7 +1411,7 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "l03_c",
-        text: "캠퍼스 내 구석구석을 다시 뒤진다",
+        text: "캠퍼스 내 구석구석을 다시 수색한다",
         effect: { food: 8, mental: -8, survivors: -3 },
         resultText: "빈틈에서 조금 찾았다. 절망감은 커지지만 위험은 적었다.",
       },
@@ -1646,9 +1648,10 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "m20_c",
-        text: "연구 데이터는 복잡하니 넘어간다",
-        effect: { mental: -5, health: -5, food: -3 },
-        resultText: "쉬운 길을 택했다. 나중에 감염자를 늦게 발견하면 후회할 것이다.",
+        text: "좀비에게 접근해 바이러스 샘플을 직접 채취한다",
+        effect: { mental: 5, health: -12, food: -5 },
+        resultText:
+          "위험하게 샘플을 확보했다. 감염 메커니즘의 단서를 얻었지만 채취 중 크게 다쳤다.",
       },
     ],
   },
@@ -1745,9 +1748,10 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "m23_c",
-        text: "체육관은 너무 넓어 방어가 어렵다며 포기한다",
-        effect: { mental: -10, health: 3, food: -3 },
-        resultText: "좁은 교실을 거점으로 삼았다. 답답하고 사기가 떨어진다.",
+        text: "체육관 내부를 칸막이로 나눠 구역별 방어 체계를 세운다",
+        effect: { mental: 5, health: -8, food: -5 },
+        resultText:
+          "커튼과 매트로 구역을 나눴다. 좁은 통로를 만들어 방어가 수월해졌지만 자원이 들었다.",
       },
     ],
   },
@@ -1870,10 +1874,10 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "l12_c",
-        text: "아무 조치도 하지 않고 지켜본다",
-        effect: { health: -15, survivors: -15, mental: -10 },
+        text: "감염자 곁에서 교대로 감시하며 함께 행동한다",
+        effect: { health: -8, survivors: -5, mental: -5 },
         resultText:
-          "밤사이 좀비화가 됐다. 기숙사 안에서 참사가 벌어졌다. 방심한 대가가 처참하다.",
+          "교대로 감시하며 동행했다. 결국 격리해야 했지만 동료를 끝까지 존중한 것이 남은 사람들에게 위로가 됐다.",
       },
     ],
   },
@@ -2057,9 +2061,10 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "l18_c",
-        text: "감상에 빠질 시간이 없다며 해산시킨다",
-        effect: { mental: -12, survivors: -8, food: -3 },
-        resultText: "냉정한 판단이었지만, 마지막 유대감마저 끊어졌다. 이탈자가 속출했다.",
+        text: "각자 유서를 쓰고 한곳에 모아 보관한다",
+        effect: { mental: -5, health: 3, survivors: 3 },
+        resultText:
+          "유서를 쓰는 동안 기묘한 평온이 찾아왔다. 죽음을 직시하니 오히려 살겠다는 의지가 더 강해졌다.",
       },
     ],
   },
@@ -2123,9 +2128,10 @@ export const EVENTS: readonly GameEvent[] = [
       },
       {
         id: "l20_c",
-        text: "지금은 위험하니 나중에 온다",
-        effect: { food: -5, mental: -8, health: 3 },
-        resultText: "돌아왔을 때 금고는 이미 털려 있었다. 다른 생존자 그룹의 소행이다.",
+        text: "교무처 서류함에서 금고 비밀번호를 찾아본다",
+        effect: { food: 12, health: -3, mental: -8 },
+        resultText:
+          "서류함을 뒤져 비밀번호를 찾았다. 시간이 오래 걸렸지만 소음 없이 금고를 열 수 있었다.",
       },
     ],
   },
@@ -2466,7 +2472,7 @@ export const SPECIAL_EVENTS: readonly GameEvent[] = [
       },
       {
         id: "sp09_b",
-        text: "좀비를 처리하고 운전석부터 뒤진다",
+        text: "좀비를 처리하고 운전석부터 수색한다",
         effect: { food: 12, health: -15, mental: -5 },
         resultText: "군인의 무전기와 식량을 얻었다. 하지만 좀비 처리 중 부상을 입었다.",
       },
@@ -2536,9 +2542,10 @@ export const SPECIAL_EVENTS: readonly GameEvent[] = [
       },
       {
         id: "sp11_c",
-        text: "학술 자료는 도움이 안 된다며 무시한다",
-        effect: { mental: -5, food: -3, health: -3 },
-        resultText: "실용적 판단이었지만, 나중에 UV가 효과적이란 걸 알게 되면 후회할 것이다.",
+        text: "자료를 여러 사본으로 필사해 캠퍼스 곳곳에 분산 보관한다",
+        effect: { mental: 5, food: -8, health: -3 },
+        resultText:
+          "시간을 들여 자료를 필사했다. 우리가 못 쓰더라도 누군가에게 도달할 수 있다.",
       },
     ],
   },
@@ -2554,7 +2561,7 @@ export const SPECIAL_EVENTS: readonly GameEvent[] = [
     choices: [
       {
         id: "sp12_a",
-        text: "고전압 트랩을 설치해 감전사시킨다",
+        text: "고전압 트랩을 설치해 감전시킨다",
         effect: { mental: 15, health: -12, food: -12 },
         departmentBonus: {
           departmentId: "electrical",
