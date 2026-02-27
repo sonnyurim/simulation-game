@@ -8,8 +8,10 @@ import type {
   GameEvent,
   EndingType,
   TurnRecord,
+  Character,
+  StyleVariant,
 } from "@/types/survival";
-import { GAME_CONFIG } from "./constants";
+import { GAME_CONFIG, DEPARTMENT_SKILLS } from "./constants";
 
 // --- Pure helper functions ---
 
@@ -30,6 +32,13 @@ function scaleNegativeEffect(value: number, multiplier: number): number {
   return Math.round(value * multiplier);
 }
 
+// Initial NPC companions — appear at game start
+const INITIAL_CHARACTERS: readonly Character[] = [
+  { id: "minjun", name: "김민준", role: "기계공학과 3학년 선배", isAlive: true, metAtTurn: 0 },
+  { id: "seoyeon", name: "이서연", role: "간호학 복수전공 교환학생", isAlive: true, metAtTurn: 0 },
+  { id: "gyungho", name: "박경호", role: "20년 경력 경비원", isAlive: true, metAtTurn: 0 },
+];
+
 // --- State creation ---
 
 export function createInitialState(): GameState {
@@ -48,14 +57,18 @@ export function createInitialState(): GameState {
     usedEventIds: [],
     recentTags: [],
     emergencyUsed: 0,
+    skillUsed: 0,
+    characters: INITIAL_CHARACTERS,
     history: [],
+    flashlightMode: false,
   };
 }
 
+// Department select → show broadcast opening story
 export function selectDepartment(state: GameState, dept: Department): GameState {
   return {
     ...state,
-    screen: "playing" as Screen,
+    screen: "broadcast" as Screen,
     department: dept,
   };
 }
@@ -98,6 +111,10 @@ export function applyChoice(
     }
   }
 
+  // Passive shelter recovery — fortified position keeps the group alive
+  newResources.health = clampResource(newResources.health + GAME_CONFIG.SHELTER_HEALTH_REGEN);
+  newResources.food = clampResource(newResources.food + GAME_CONFIG.SHELTER_FOOD_REGEN);
+
   const newTurn = state.turn + 1;
   const turnRecord: TurnRecord = {
     turn: newTurn,
@@ -114,6 +131,56 @@ export function applyChoice(
     usedEventIds: [...state.usedEventIds, event.id],
     recentTags: [event.tag, ...state.recentTags].slice(0, GAME_CONFIG.RECENT_TAG_LIMIT),
     history: [...state.history, turnRecord],
+    flashlightMode:
+      event.id === "sp_blackout"
+        ? true
+        : event.id === "sp_lights_restored"
+          ? false
+          : state.flashlightMode,
+  };
+}
+
+// --- Department skill ---
+
+export function applySkill(state: GameState): GameState {
+  if (!state.department) return state;
+
+  const skill = DEPARTMENT_SKILLS.find((s) => s.departmentId === state.department!.id);
+  if (!skill) return state;
+  if (state.skillUsed >= skill.maxUses) return state;
+
+  const resourceKeys: ResourceKey[] = ["health", "food", "survivors", "mental"];
+  const newResources = { ...state.resources };
+  let resultText = skill.resultText;
+
+  if (skill.isRandom) {
+    // Free major: 50/50 big bonus or big penalty
+    const isGood = Math.random() >= 0.5;
+    const randomEffect = isGood
+      ? { health: 20, food: 20, mental: 15, survivors: 10 }
+      : { health: -25, food: -20, mental: -25, survivors: -15 };
+
+    for (const key of resourceKeys) {
+      const delta = randomEffect[key] ?? 0;
+      newResources[key] = clampResource(newResources[key] + delta);
+    }
+
+    if (!isGood && skill.resultTextFail) {
+      resultText = skill.resultTextFail;
+    }
+  } else {
+    for (const key of resourceKeys) {
+      const delta = skill.effect[key] ?? 0;
+      newResources[key] = clampResource(newResources[key] + delta);
+    }
+  }
+
+  return {
+    ...state,
+    resources: newResources,
+    skillUsed: state.skillUsed + 1,
+    lastChoiceResult: resultText,
+    currentEvent: null, // Clear current event to show result
   };
 }
 
@@ -141,6 +208,27 @@ export function applyEmergencySupply(state: GameState): GameState {
   };
 }
 
+// --- Style variant (for ending description personalisation) ---
+
+export function getStyleVariant(
+  skillUsed: number,
+  resources: Resources,
+  isVictory: boolean,
+): StyleVariant {
+  if (skillUsed >= 3) return "skill_max";
+  if (skillUsed === 0) return "skill_none";
+
+  if (isVictory) {
+    const entries = Object.entries(resources) as [ResourceKey, number][];
+    const [lowestKey, lowestVal] = entries.reduce((min, curr) =>
+      curr[1] < min[1] ? curr : min,
+    );
+    if (lowestVal < 45) return `${lowestKey}_low` as StyleVariant;
+  }
+
+  return "default";
+}
+
 // --- Game over / victory check ---
 
 export function checkGameEnd(state: GameState): EndingType | null {
@@ -150,19 +238,21 @@ export function checkGameEnd(state: GameState): EndingType | null {
   if (state.resources.mental <= 0) return "breakdown";
 
   if (state.turn >= GAME_CONFIG.TOTAL_TURNS) {
-    const allAbove50 = (Object.values(state.resources) as number[]).every(
-      (v) => v > 50,
-    );
-    return allAbove50 ? "perfect_rescue" : "rescued";
+    const values = Object.values(state.resources) as number[];
+    const allPerfect = values.every((v) => v > GAME_CONFIG.PERFECT_RESCUE_THRESHOLD);
+    const allSafe = values.every((v) => v > GAME_CONFIG.NARROW_ESCAPE_THRESHOLD);
+
+    if (allPerfect) return "perfect_rescue";
+    if (allSafe) return "rescued";
+    return "narrow_escape";
   }
 
   return null;
 }
 
 export function transitionToEnd(state: GameState, ending: EndingType): GameState {
-  const screen: Screen = ending === "rescued" || ending === "perfect_rescue"
-    ? "victory"
-    : "gameOver";
+  const victoryEndings: EndingType[] = ["rescued", "perfect_rescue", "narrow_escape"];
+  const screen: Screen = victoryEndings.includes(ending) ? "victory" : "gameOver";
   return { ...state, screen };
 }
 

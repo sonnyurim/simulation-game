@@ -1,103 +1,158 @@
-import Link from "next/link";
+"use client";
 
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-import { RankingSidebar } from "@/components/survival/RankingSidebar";
+import { sanitizeNickname, validateNickname } from "@/lib/validation";
+
+const BLOOD_DRIPS = [
+  { left: "4%",  width: 5, height: 88  },
+  { left: "10%", width: 3, height: 44  },
+  { left: "17%", width: 6, height: 115 },
+  { left: "25%", width: 4, height: 62  },
+  { left: "33%", width: 3, height: 38  },
+  { left: "44%", width: 5, height: 72  },
+  { left: "54%", width: 4, height: 52  },
+  { left: "63%", width: 6, height: 96  },
+  { left: "73%", width: 3, height: 48  },
+  { left: "81%", width: 5, height: 130 },
+  { left: "89%", width: 4, height: 58  },
+  { left: "95%", width: 6, height: 80  },
+];
 
 export default function Home() {
-  return (
-    <div className="flex min-h-dvh">
-      {/* Left spacer */}
-      <div className="hidden w-56 shrink-0 lg:block" />
+  const router = useRouter();
+  const [nickname, setNickname] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-    <div className="relative flex min-h-dvh flex-1 flex-col items-center justify-center overflow-hidden px-8 text-center">
-      {/* Background glow effect */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-1/4 h-80 w-80 -translate-x-1/2 rounded-full bg-destructive/10 blur-[120px]" />
-        <div className="absolute bottom-1/4 left-1/3 h-60 w-60 rounded-full bg-warning/5 blur-[100px]" />
+  function handleStart() {
+    const cleaned = sanitizeNickname(nickname);
+    const validationError = validateNickname(cleaned);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    sessionStorage.setItem("game-nickname", cleaned);
+    router.push("/survival");
+  }
+
+  return (
+    <div className="animate-notice-flicker relative flex min-h-dvh flex-col items-center justify-center px-6 overflow-hidden">
+
+      {/* ── Background layers ── */}
+
+      {/* Top blood glow */}
+      <div
+        className="pointer-events-none fixed inset-x-0 top-0 z-0"
+        style={{
+          height: "45%",
+          background:
+            "linear-gradient(to bottom, oklch(0.28 0.24 25 / 0.45) 0%, oklch(0.18 0.18 25 / 0.12) 55%, transparent 100%)",
+        }}
+      />
+
+      {/* Bottom ember glow */}
+      <div
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-0"
+        style={{
+          height: "30%",
+          background:
+            "linear-gradient(to top, oklch(0.16 0.16 25 / 0.35) 0%, transparent 100%)",
+        }}
+      />
+
+      {/* Side bleeds */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 40% 80% at 0% 50%, oklch(0.22 0.20 25 / 0.25), transparent)," +
+            "radial-gradient(ellipse 40% 80% at 100% 50%, oklch(0.22 0.20 25 / 0.2), transparent)",
+        }}
+      />
+
+      {/* Blood drips from top */}
+      <div className="pointer-events-none fixed inset-x-0 top-0 z-0">
+        {BLOOD_DRIPS.map((drip, i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: drip.left,
+              top: 0,
+              width: drip.width,
+              height: drip.height,
+              background:
+                "linear-gradient(to bottom, oklch(0.40 0.26 25 / 0.9), oklch(0.30 0.22 25 / 0.3))",
+              borderRadius: "0 0 50% 50%",
+            }}
+          />
+        ))}
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-10">
-        {/* Zombie icons row */}
-        <div className="flex items-center gap-6 text-5xl">
-          <span className="animate-float opacity-60">🧟</span>
-          <span className="animate-float-delay opacity-40">🧟‍♂️</span>
-          <span className="animate-float opacity-60">🧟‍♀️</span>
-        </div>
+      {/* Dark red vignette */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 50%, transparent 45%, oklch(0.05 0.04 25 / 0.88) 100%)",
+        }}
+      />
 
-        {/* Hero title */}
-        <div className="space-y-3">
-          <h1 className="animate-flicker text-7xl font-extrabold tracking-tight text-primary drop-shadow-[0_0_30px_rgba(200,50,50,0.3)]">
+      {/* Scanlines */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.04]"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(0deg, #000 0px, #000 1px, transparent 1px, transparent 3px)",
+        }}
+      />
+
+      {/* ── Content ── */}
+      <div className="relative z-10 w-full max-w-xs space-y-10">
+        <div>
+          <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-foreground drop-shadow-[0_0_30px_oklch(0.45_0.25_25/0.6)]">
             지금 우리 학교는
           </h1>
-          <p className="text-3xl font-semibold text-muted-foreground">
-            : 연암공과대학교
+          <p className="mt-2 font-mono text-[11px] tracking-[0.25em] text-muted-foreground/75">
+            연암공과대학교
           </p>
         </div>
 
-        {/* Story card */}
-        <div className="w-full max-w-xl space-y-6 rounded-2xl border border-border/60 bg-card/60 p-8 backdrop-blur-sm">
-          <p className="text-xl leading-relaxed text-muted-foreground">
-            연암공과대학교에 좀비 바이러스가 퍼졌다.
-          </p>
-          <div className="mx-auto h-px w-1/2 bg-gradient-to-r from-transparent via-destructive/40 to-transparent" />
-          <p className="text-2xl font-bold text-foreground">
-            <span className="text-primary">52일</span>간 생존하면
-            <br />
-            구조대가 도착한다.
-          </p>
-          <div className="mx-auto h-px w-1/2 bg-gradient-to-r from-transparent via-destructive/40 to-transparent" />
-
-          {/* Resource icons with labels */}
-          <div className="flex justify-center gap-8 text-base text-muted-foreground">
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-3xl">🫁</span>
-              <span>체력</span>
+        <div className="space-y-6">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 border-b border-border/50 py-2 transition-colors focus-within:border-border/80">
+              <span className="font-mono text-xs text-muted-foreground/40">▸</span>
+              <input
+                value={nickname}
+                onChange={(e) => {
+                  setNickname(e.target.value);
+                  setError(null);
+                }}
+                onKeyDown={(e) => e.key === "Enter" && handleStart()}
+                maxLength={10}
+                placeholder="이름 입력 (2~10자)"
+                className="flex-1 bg-transparent font-mono text-sm text-foreground placeholder:text-muted-foreground/45 focus:outline-none"
+              />
             </div>
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-3xl">🍞</span>
-              <span>식량</span>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-3xl">👥</span>
-              <span>생존자</span>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-3xl">🧠</span>
-              <span>멘탈</span>
-            </div>
+            {error && (
+              <p className="font-mono text-[11px] text-destructive">{error}</p>
+            )}
           </div>
 
-          <p className="text-lg text-muted-foreground">
-            4가지 자원을 관리하며 매 턴 선택으로 운명을 결정하라.
-          </p>
-          <p className="animate-pulse-glow text-xl font-bold text-destructive">
-            ⚠️ 자원이 0%에 도달하면 게임 오버
-          </p>
-        </div>
-
-        {/* Actions */}
-        <div className="flex flex-col items-center gap-4">
-          <Button
-            size="lg"
-            className="px-20 py-8 text-2xl shadow-[0_0_30px_rgba(200,50,50,0.2)] transition-shadow hover:shadow-[0_0_40px_rgba(200,50,50,0.4)]"
-            asChild
+          <button
+            onClick={handleStart}
+            className="group flex items-center gap-3 py-1 transition-colors"
           >
-            <Link href="/survival">🎮 생존 시작</Link>
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-lg text-muted-foreground"
-            asChild
-          >
-            <Link href="/ranking">🏆 명예의 전당</Link>
-          </Button>
+            <span className="font-mono text-xs text-muted-foreground/40 transition-colors group-hover:text-destructive">
+              →
+            </span>
+            <span className="font-mono text-sm text-foreground/90 transition-colors group-hover:text-foreground">
+              시작하기
+            </span>
+          </button>
         </div>
       </div>
-    </div>
-
-      <RankingSidebar />
     </div>
   );
 }

@@ -11,27 +11,31 @@ interface TurnCounterProps {
 
 export function TurnCounter({ turn }: TurnCounterProps) {
   const remaining = GAME_CONFIG.TOTAL_TURNS - turn;
-  const isLate = remaining <= 10;
+  const isLate = remaining <= 6;
 
   return (
-    <div className="relative flex flex-col items-center gap-2">
-      <h1 className="text-3xl font-extrabold tracking-tight text-primary sm:text-4xl">
+    <div className="relative">
+      <p className="mb-2 text-center text-[10px] uppercase tracking-[0.25em] text-muted-foreground/40">
         지금 우리 학교는
-      </h1>
-      <p
-        className={cn(
-          "text-base font-bold sm:text-lg",
-          isLate ? "text-destructive animate-pulse" : "text-warning",
-        )}
-      >
-        {turn}일차 / {GAME_CONFIG.TOTAL_TURNS}일
       </p>
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span
+          className={cn(
+            "text-sm font-bold tabular-nums tracking-widest",
+            isLate ? "animate-pulse text-destructive" : "text-muted-foreground/60",
+          )}
+        >
+          {turn}일째
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
 
       <Link
         href="/ranking"
-        className="absolute right-0 top-1 flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:text-sm"
+        className="absolute right-0 top-0 text-xs text-muted-foreground/40 transition-colors hover:text-muted-foreground"
       >
-        🏆 명예의 전당
+        🏆
       </Link>
     </div>
   );

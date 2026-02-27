@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
-
-import { NicknameForm } from "@/components/survival/NicknameForm";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import { saveResultApi } from "@/features/survival/api";
 import { ENDINGS, GAME_CONFIG, RESOURCE_ICONS, RESOURCE_LABELS } from "@/lib/constants";
+import { clearSession } from "@/lib/game-logic";
+import { getStyleVariant } from "@/lib/game-logic";
 import { calculateScore } from "@/lib/scoring";
 
 import type { EndingType, Resources, ResourceKey } from "@/types/survival";
@@ -17,108 +16,133 @@ interface VictoryScreenProps {
   readonly turn: number;
   readonly resources: Resources;
   readonly emergencyUsed: number;
+  readonly skillUsed: number;
   readonly department: string;
   readonly onRestart: () => void;
 }
 
 const RESOURCE_KEYS: ResourceKey[] = ["health", "food", "survivors", "mental"];
 
+const ENDING_ICONS: Partial<Record<EndingType, string>> = {
+  perfect_rescue: "🏆",
+  rescued: "🚁",
+  narrow_escape: "🏃",
+};
+
 export function VictoryScreen({
   ending,
   turn,
   resources,
   emergencyUsed,
+  skillUsed,
   department,
   onRestart,
 }: VictoryScreenProps) {
-  const [isSaved, setIsSaved] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
+  const router = useRouter();
   const endingData = ENDINGS[ending];
   const score = calculateScore(turn, resources, emergencyUsed);
   const isPerfect = ending === "perfect_rescue";
+  const icon = ENDING_ICONS[ending] ?? "🚁";
+  const styleVariant = getStyleVariant(skillUsed, resources, true);
+  const styleSuffix = endingData.styleSuffixes?.[styleVariant];
 
-  async function handleSave(nickname: string) {
-    setIsLoading(true);
-    const { error } = await saveResultApi({
+  useEffect(() => {
+    const nickname = sessionStorage.getItem("game-nickname") ?? "익명";
+    saveResultApi({
       nickname,
       department,
       score: score.totalScore,
       turnsSurvived: turn,
       ending,
     });
-    setIsLoading(false);
-    if (!error) {
-      setIsSaved(true);
-    }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center px-6 py-10">
-      <div className="w-full max-w-lg rounded-xl border border-border bg-card p-10 text-center">
-        {/* Icon */}
-        <div className="text-7xl">{isPerfect ? "🏆" : "🚁"}</div>
+    <div className="relative flex min-h-dvh flex-col items-center justify-center px-6 py-10">
+      {/* Vignette */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 50%, transparent 35%, oklch(0.05 0.01 15 / 0.92) 100%)",
+        }}
+      />
 
-        {/* Title */}
-        <h1 className={`mt-5 text-5xl font-extrabold ${isPerfect ? "text-warning" : "text-success"}`}>
-          {endingData.title}!
+      <div className="relative z-10 w-full max-w-lg">
+        <div className="text-center text-6xl">{icon}</div>
+
+        <h1
+          className="mt-5 text-center text-4xl font-extrabold text-success"
+          style={{ textShadow: "0 0 24px oklch(0.55 0.2 150 / 0.45)" }}
+        >
+          {endingData.title}
         </h1>
 
-        {/* Description */}
-        <p className="mt-4 text-lg text-foreground">
-          {GAME_CONFIG.TOTAL_TURNS}일간 생존에 성공했습니다!
+        <p className="mt-3 text-center font-mono text-sm text-muted-foreground">
+          {GAME_CONFIG.TOTAL_TURNS}일 생존 완료
         </p>
-        <p className="mt-3 text-sm text-muted-foreground">
+
+        <p className="mt-2 text-center text-sm text-foreground/70">
           {endingData.description}
         </p>
+        {styleSuffix && (
+          <p className="mt-2 text-center text-xs italic text-muted-foreground/40">
+            {styleSuffix}
+          </p>
+        )}
 
-        {/* Score */}
-        <p className="mt-5 text-4xl font-extrabold text-warning">
-          {score.totalScore}점
-        </p>
-        <div className="mt-3 flex flex-wrap justify-center gap-3 text-sm text-muted-foreground">
-          <span>턴 {score.turnScore}</span>
-          <span>자원 +{score.resourceBonus}</span>
-          {isPerfect && <span className="text-warning">완벽 +{score.perfectBonus}</span>}
-          {score.emergencyPenalty > 0 && <span className="text-destructive">보급 -{score.emergencyPenalty}</span>}
+        <div className="mt-10 text-center">
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/40">
+            최종 점수
+          </p>
+          <p className="mt-1 font-mono text-5xl font-bold text-foreground">
+            {score.totalScore}
+          </p>
+          <div className="mt-2 flex flex-wrap justify-center gap-3 font-mono text-xs text-muted-foreground/60">
+            <span>턴 {score.turnScore}</span>
+            <span>자원 +{score.resourceBonus}</span>
+            {isPerfect && <span className="text-success">완벽 +{score.perfectBonus}</span>}
+            {score.emergencyPenalty > 0 && (
+              <span className="text-destructive">보급 -{score.emergencyPenalty}</span>
+            )}
+          </div>
         </div>
 
-        {/* Final resources */}
-        <div className="mt-5 grid grid-cols-2 gap-3 text-sm text-muted-foreground">
+        <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-1 border border-border/20 px-4 py-3">
           {RESOURCE_KEYS.map((key) => (
-            <span key={key}>
-              {RESOURCE_ICONS[key]} {RESOURCE_LABELS[key]} {resources[key]}%
+            <span key={key} className="font-mono text-xs text-muted-foreground/60">
+              {RESOURCE_ICONS[key]} {RESOURCE_LABELS[key]}{" "}
+              <span className="text-foreground/80">{resources[key]}%</span>
             </span>
           ))}
         </div>
 
-        {/* Nickname form */}
-        {!isSaved ? (
-          <div className="mt-6 space-y-3">
-            <NicknameForm onSubmit={handleSave} isLoading={isLoading} />
-          </div>
-        ) : (
-          <div className="mt-6 space-y-3">
-            <p className="text-base text-success">기록 저장 완료!</p>
-            <div className="flex gap-4">
-              <Button variant="outline" className="flex-1 py-6 text-lg" onClick={onRestart}>
-                다시 도전
-              </Button>
-              <Button variant="secondary" className="flex-1 py-6 text-lg" asChild>
-                <a href="/ranking">랭킹 보기</a>
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Actions (before save) */}
-        {!isSaved && (
-          <div className="mt-6 flex gap-4">
-            <Button variant="outline" className="flex-1 py-6 text-lg" onClick={onRestart}>
-              다시 도전
-            </Button>
-          </div>
-        )}
+        <div className="mt-8 flex gap-3 border-t border-border/30 pt-6">
+          <button
+            onClick={() => router.push("/ranking")}
+            className="group flex flex-1 items-center justify-center gap-2 py-2 transition-colors"
+          >
+            <span className="font-mono text-xs text-muted-foreground/40 transition-colors group-hover:text-muted-foreground">
+              →
+            </span>
+            <span className="font-mono text-sm text-foreground/70 transition-colors group-hover:text-foreground">
+              생존자 명단
+            </span>
+          </button>
+          <div className="w-px bg-border/30" />
+          <button
+            onClick={() => { clearSession(); router.push("/"); }}
+            className="group flex flex-1 items-center justify-center gap-2 py-2 transition-colors"
+          >
+            <span className="font-mono text-xs text-muted-foreground/40 transition-colors group-hover:text-destructive">
+              →
+            </span>
+            <span className="font-mono text-sm text-foreground/70 transition-colors group-hover:text-foreground">
+              다시 시작
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );

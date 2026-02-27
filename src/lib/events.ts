@@ -1,7 +1,218 @@
 import type { GameEvent } from "@/types/survival";
 
 export const EVENTS: readonly GameEvent[] = [
-  // ========== EARLY PHASE (1-17) ==========
+  // ========== STARTER EVENTS (턴 1 고정 — 학과별 인트로 직결) ==========
+  {
+    // 인트로: "납땜 인두를 집어 들고, 복도로 나갔다."
+    id: "start_electrical",
+    phase: "early",
+    tag: "explore",
+    location: "전기실습동 4층 복도",
+    title: "복도 끝의 소리",
+    starterDepartmentId: "electrical",
+    description:
+      "납땜 인두를 들고 복도로 나섰다. 비상등이 깜박이는 복도 끝에서 두 명의 좀비가 당신을 발견했다. 전기실 배선함이 옆에 있다.",
+    choices: [
+      {
+        id: "start_electrical_a",
+        text: "배선함을 열어 복도 전체에 전기를 흘린다",
+        effect: { health: -8, mental: -10, survivors: 5 },
+        departmentBonus: { departmentId: "electrical", extraEffect: { health: 10 } },
+        resultText:
+          "과부하 전류가 복도를 훑었다. 좀비 둘 다 쓰러졌다. 납땜 인두가 아직 손에 있었다. 멀리서 누군가 살아있다는 소리가 들렸다.",
+      },
+      {
+        id: "start_electrical_b",
+        text: "계단 쪽으로 도망쳐 아래층 생존자를 찾는다",
+        effect: { health: -5, mental: -8, food: -5 },
+        resultText:
+          "3층으로 내려오니 학생 두 명이 창고에 숨어 있었다. 함께 움직이기로 했다.",
+      },
+      {
+        id: "start_electrical_c",
+        text: "실습실 문을 잠그고 상황을 파악한다",
+        effect: { mental: 8, food: -5, health: -3 },
+        resultText:
+          "잠긴 문 너머로 긁히는 소리가 났다. 숨을 죽이며 창밖으로 캠퍼스를 내려다봤다. 생각보다 훨씬 많았다.",
+      },
+    ],
+  },
+  {
+    // 인트로: "용접봉 하나 들고, 어디로 가야 할지 생각했다."
+    id: "start_mechanical",
+    phase: "early",
+    tag: "social",
+    location: "기계실습동 1층 로비",
+    title: "로비의 생존자들",
+    starterDepartmentId: "mechanical",
+    description:
+      "계단을 내려오니 1층 로비에 학생 세 명이 갇혀 있었다. 비상구 앞에 좀비 두 마리. 용접봉이 손에 있다.",
+    choices: [
+      {
+        id: "start_mechanical_a",
+        text: "용접봉으로 좀비를 제압하고 학생들을 구한다",
+        effect: { health: -15, survivors: 15, mental: -8 },
+        departmentBonus: { departmentId: "mechanical", extraEffect: { health: 8 } },
+        resultText:
+          "작업복 소매가 찢겼다. 학생 셋을 데리고 빠져나왔다.",
+      },
+      {
+        id: "start_mechanical_b",
+        text: "소음 없이 혼자 비상구로 빠져나간다",
+        effect: { health: -5, mental: -20, food: -3 },
+        resultText:
+          "혼자 탈출했다. 문이 닫히는 소리와 함께 뒤에서 비명이 들렸다. 계속 귓가에 남았다.",
+      },
+      {
+        id: "start_mechanical_c",
+        text: "용접기로 비상구 근처 문을 용접해 막고 함께 버틴다",
+        effect: { food: -10, health: -5, mental: 10 },
+        resultText:
+          "용접 소음이 좀비를 끌었지만 막아냈다. 넷이서 버텼다. '너 기계과지?' 누군가 물었다. 끄덕였다.",
+      },
+    ],
+  },
+  {
+    // 인트로: "카메라를 되살려야 했다. 그래야 상황을 파악할 수 있었다."
+    id: "start_smart_ee",
+    phase: "early",
+    tag: "defense",
+    location: "스마트관 2층 IoT 연구실",
+    title: "끊긴 카메라 16번",
+    starterDepartmentId: "smart_ee",
+    description:
+      "연구실로 돌아와 IoT 장비를 확인했다. 카메라 16번 신호를 되살리면 학식 쪽 상황을 볼 수 있다. 배선이 끊겨 있다.",
+    choices: [
+      {
+        id: "start_smart_ee_a",
+        text: "배선을 직접 이어 카메라 16번을 복구한다",
+        effect: { mental: 15, health: -8, food: -5 },
+        departmentBonus: { departmentId: "smart_ee", extraEffect: { mental: 10, survivors: 5 } },
+        resultText:
+          "화면이 켜졌다. 학식 앞엔 좀비 떼. 그리고 건물 2층 창문에서 손을 흔드는 사람이 보였다. 살아 있었다.",
+      },
+      {
+        id: "start_smart_ee_b",
+        text: "카메라 대신 IoT 센서로 건물 전체 움직임을 감지한다",
+        effect: { mental: 10, food: -10, health: -3 },
+        resultText:
+          "센서 맵에 빨간 점이 가득 찍혔다. 얼마나 많은지 직접 봤으면 더 무서웠을 것이다. 알아서 다행이기도 했다.",
+      },
+      {
+        id: "start_smart_ee_c",
+        text: "장비를 챙겨 다른 생존자를 찾아 연구실을 나선다",
+        effect: { health: -8, mental: -10, survivors: 8 },
+        resultText:
+          "복도에서 혼자 숨어있던 학생을 만났다. '혼자였어요.' 이제 둘이었다.",
+      },
+    ],
+  },
+  {
+    // 인트로: "프린터는 멈추지 않았다. 뭔가 만들어야 할 것 같았다."
+    id: "start_smart_mech",
+    phase: "early",
+    tag: "craft",
+    location: "스마트제조관 1층 CNC 실습실",
+    title: "멈추지 않는 프린터",
+    starterDepartmentId: "smart_mech",
+    description:
+      "프린터가 돌아가는 동안 복도 발소리가 점점 가까워졌다. 지금 당장 뭔가를 만들 수 있다. 시간이 없다.",
+    choices: [
+      {
+        id: "start_smart_mech_a",
+        text: "즉석 방호 마스크 틀을 출력한다 — 기계 소음을 감수한다",
+        effect: { health: 15, food: -10, mental: -12 },
+        departmentBonus: { departmentId: "smart_mech", extraEffect: { food: 8, health: 5 } },
+        resultText:
+          "프린터 소음에 좀비 두 마리가 문 앞까지 왔다. 막아내며 마스크를 완성했다. 틈틈이 식량도 챙겼다. 졸업 작품보다 더 중요한 걸 만든 것 같았다.",
+      },
+      {
+        id: "start_smart_mech_b",
+        text: "프린터를 끄고 CNC 소재를 챙겨 탈출한다",
+        effect: { food: -5, mental: -8, health: -5, survivors: 5 },
+        resultText:
+          "복도에 나오니 경비원이 있었다. '여기 혼자였냐?' 그가 물었다. 그 말이 묘하게 위로가 됐다.",
+      },
+      {
+        id: "start_smart_mech_c",
+        text: "실습실 문을 CNC 금속판으로 보강하고 버틴다",
+        effect: { mental: 10, health: -5, food: -5 },
+        resultText:
+          "문이 버텼다. 발소리가 멀어졌다. 프린터도 멈췄다. 이제 진짜 생존을 시작해야 했다.",
+      },
+    ],
+  },
+  {
+    // 인트로: "노트북을 닫고, 상황을 파악해야 했다."
+    id: "start_smart_sw",
+    phase: "early",
+    tag: "explore",
+    location: "소프트웨어관 3층 계단참",
+    title: "계단에서 마주친 사람들",
+    starterDepartmentId: "smart_sw",
+    description:
+      "노트북을 닫고 계단으로 나갔다. 3층 계단참에 패닉 상태의 학생 둘이 있었다. 와이파이도 핸드폰도 안 된다. 어떻게 상황을 파악할 것인가.",
+    choices: [
+      {
+        id: "start_smart_sw_a",
+        text: "서버실에 가서 교내 방송으로 생존자를 집결시킨다",
+        effect: { survivors: 15, food: -10, health: -8 },
+        departmentBonus: { departmentId: "smart_sw", extraEffect: { mental: 10 } },
+        resultText:
+          "방송이 나갔다. '소프트웨어관 3층으로 모이세요.' 10분 뒤, 예상보다 많은 사람이 왔다. 너무 많을 수도 있었다.",
+      },
+      {
+        id: "start_smart_sw_b",
+        text: "학습 중인 AI 모델로 최적 탈출 경로를 계산한다",
+        effect: { mental: 15, food: -8, health: -5 },
+        resultText:
+          "모델이 경로 하나를 내뱉었다. 맞는지 틀린지 확인할 방법은 없었다. 믿는 수밖에 없었다.",
+      },
+      {
+        id: "start_smart_sw_c",
+        text: "두 학생을 설득해 함께 캠퍼스 상황을 정찰한다",
+        effect: { survivors: 8, health: -10, mental: -8 },
+        resultText:
+          "셋이서 1층까지 내려갔다가 올라왔다. 1층은 이미 안 됐다. 올라오는 길에 혼자 버티던 학생을 하나 더 만났다.",
+      },
+    ],
+  },
+  {
+    // 인트로: "커피잔을 내려놓았다."
+    id: "start_free_major",
+    phase: "early",
+    tag: "social",
+    location: "본관 1층 카페",
+    title: "카페 안의 네 사람",
+    starterDepartmentId: "free_major",
+    description:
+      "커피잔을 내려놓았다. 카페 안에 아직 네 명이 얼어붙어 있었다. 밖에서 유리 깨지는 소리가 났다. 어느 학과도 아닌 당신이 먼저 움직였다.",
+    choices: [
+      {
+        id: "start_free_major_a",
+        text: "'따라오세요' — 무작정 이끌고 카페 뒷문으로 나간다",
+        effect: { survivors: 15, food: -10, mental: 5 },
+        resultText:
+          "넷 중 셋이 따라왔다. 한 명은 자리를 떠나지 않았다. 기다릴 수 없었다. 뒤를 돌아보지 않았다.",
+      },
+      {
+        id: "start_free_major_b",
+        text: "카페 카운터 뒤에 숨어 상황이 지나가길 기다린다",
+        effect: { food: 8, mental: -15, health: -5 },
+        resultText:
+          "30분 뒤 조용해졌다. 카운터 뒤에서 나왔을 때 카페엔 나 혼자였다. 어디서부터 시작해야 할지 몰랐다.",
+      },
+      {
+        id: "start_free_major_c",
+        text: "카페 물건으로 문을 막고 함께 버틸 방법을 찾는다",
+        effect: { mental: 10, health: -5, food: -8 },
+        resultText:
+          "테이블과 의자로 문을 막았다. 넷이 같이 했다. 어느 학과냐고 물었더니 다 달랐다. 그게 오히려 다행이었다.",
+      },
+    ],
+  },
+
+  // ========== EARLY PHASE ==========
   {
     id: "e01",
     phase: "early",
@@ -43,7 +254,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "실습동",
     title: "CCTV 네트워크 복구",
     description:
-      "실습동 서버룸에 CCTV 시스템이 살아 있다. 전력만 복구하면 캠퍼스 전체를 감시할 수 있다.",
+      "서버룸으로 들어서자 꺼진 모니터들이 줄지어 있었다. 전력을 복구하면 CCTV 8대를 살릴 수 있다.",
     choices: [
       {
         id: "e02_a",
@@ -78,29 +289,29 @@ export const EVENTS: readonly GameEvent[] = [
     location: "실습동",
     title: "부상자 발생",
     description:
-      "한 생존자가 유리에 깊이 베였다. 응급 치료가 필요하다.",
+      "한 생존자가 유리에 깊이 베였다. 간호학을 아는 누군가가 직접 처치하겠다고 나섰지만, 의약품이 없다.",
     choices: [
       {
         id: "e03_a",
-        text: "보건실까지 위험을 무릅쓰고 의약품을 구한다",
+        text: "함께 보건실까지 위험을 무릅쓰고 간다",
         effect: { health: 15, food: -10, mental: -8 },
-        resultText: "약품을 구해왔지만 왕복 중 공포스러운 경험을 했다.",
+        resultText: "능숙한 손길로 처치가 끝났다. 보건실까지 가는 길이 지옥이었지만.",
       },
       {
         id: "e03_b",
-        text: "용접 도구로 간이 수술 기구를 만든다",
+        text: "용접 도구로 간이 수술 기구를 만들어 넘긴다",
         effect: { health: 5, survivors: -5, food: -8 },
         departmentBonus: {
           departmentId: "mechanical",
           extraEffect: { health: 12 },
         },
-        resultText: "도구 제작 소음에 좀비가 몰려왔다. 치료는 됐지만 대피하느라 혼란스러웠다.",
+        resultText: "도구 제작 소음에 좀비가 몰려왔다. 그래도 처치는 끝까지 마쳤다.",
       },
       {
         id: "e03_c",
-        text: "압박 붕대로 응급처치만 한다",
+        text: "압박 붕대로만 응급처치한다",
         effect: { health: 3, mental: -8, survivors: 3 },
-        resultText: "출혈은 멈췄다. 불안하지만 다같이 돌봐주니 유대감이 생겼다.",
+        resultText: "출혈은 멈췄다. '이 정도면 버틸 수 있어.' 아무도 믿기지 않았지만 믿고 싶었다.",
       },
     ],
   },
@@ -109,28 +320,28 @@ export const EVENTS: readonly GameEvent[] = [
     phase: "early",
     tag: "social",
     location: "기숙사",
-    title: "새로운 생존자",
+    title: "기숙사의 생존자들",
     description:
-      "기숙사에서 숨어 있던 학생 무리를 발견했다. 합류를 원하고 있다.",
+      "기숙사에서 숨어 있던 학생 무리를 발견했다. '우리가 받아줄 수 있는 사람이 몇 명인지 생각해야 해.' 냉정한 목소리가 귓가에 걸렸다.",
     choices: [
       {
         id: "e04_a",
-        text: "전원 합류시킨다",
-        effect: { survivors: 15, food: -15, mental: 5 },
-        resultText: "5명이 합류했다. 힘은 세졌지만 식량이 급감한다.",
+        text: "그 말을 무시하고 전원 합류시킨다",
+        effect: { survivors: 15, food: -10, mental: 5 },
+        resultText: "5명이 합류했다. 누군가의 표정이 굳었다. 힘은 세졌지만 식량이 급감한다.",
       },
       {
         id: "e04_b",
-        text: "건장한 사람만 뽑아서 받는다",
+        text: "냉정한 판단에 맡긴다",
         effect: { survivors: 5, mental: -12, health: 5 },
-        resultText: "3명이 합류했다. 거절당한 이들의 울음소리가 잊히지 않는다.",
+        resultText: "3명을 골랐다. 거절당한 이들의 울음소리가 복도에 울렸다. 그쪽을 보지 않았다.",
       },
       {
         id: "e04_c",
-        text: "식량을 나눠주고 각자의 길을 간다",
-        effect: { food: -15, mental: -5, survivors: -5 },
+        text: "식량만 나눠주고 각자의 길을 권한다",
+        effect: { food: -10, mental: -5, survivors: -5 },
         resultText:
-          "식량을 나눠줬는데 밤새 나머지도 훔쳐 갔다. 인심만 좋으면 살아남을 수 없다.",
+          "말없이 식량 봉지를 건넸다. 밤새 나머지도 훔쳐 갔다. '내가 틀렸나.' 혼잣말이 새어나왔다.",
       },
     ],
   },
@@ -141,7 +352,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "실습동",
     title: "라즈베리파이 경보 시스템",
     description:
-      "실습동에서 라즈베리파이와 센서 모듈을 발견했다. 침입 경보 시스템을 만들 수 있다.",
+      "실습동 창고 구석에 라즈베리파이와 센서 모듈이 쌓여 있었다. 침입 경보 시스템을 만들 수 있을 것 같다.",
     choices: [
       {
         id: "e05_a",
@@ -156,10 +367,10 @@ export const EVENTS: readonly GameEvent[] = [
         effect: { mental: 5, food: -12, health: -5 },
         departmentBonus: {
           departmentId: "smart_sw",
-          extraEffect: { mental: 15 },
+          extraEffect: { food: 12, mental: 5 },
         },
         resultText:
-          "개발에 이틀이 걸렸다. 그 동안 식량 확보를 못 해 위기가 왔다.",
+          "개발에 이틀이 걸렸다. 하지만 시스템이 최적 식량 수거 경로도 계산해줬다. 기술이 생존을 지탱했다.",
       },
       {
         id: "e05_c",
@@ -174,28 +385,28 @@ export const EVENTS: readonly GameEvent[] = [
     phase: "early",
     tag: "morale",
     location: "체육관",
-    title: "첫 번째 밤",
+    title: "야간 경계",
     description:
-      "해가 졌다. 어둠 속에서 좀비들의 울부짖음이 사방에서 들린다.",
+      "해가 졌다. 어둠 속에서 좀비들의 울부짖음이 사방에서 들린다. 오랜 경비 경험을 가진 누군가가 초소를 세우자고 제안한다.",
     choices: [
       {
         id: "e06_a",
-        text: "모닥불을 피우고 이야기를 나눈다",
+        text: "그 제안을 무시하고 모닥불을 피운다",
         effect: { mental: 15, food: -10, health: -5 },
-        resultText: "불빛이 마음을 데웠지만 좀비를 끌어들여 식량을 지키느라 고생했다.",
+        resultText: "불빛이 마음을 데웠다. 어디선가 한숨 소리가 들렸다. 예상대로 좀비가 몰려와 식량을 지키느라 고생했다.",
       },
       {
         id: "e06_b",
-        text: "교대로 보초를 선다",
+        text: "교대 보초 일정을 따른다",
         effect: { health: -10, mental: 5, survivors: 5 },
-        resultText: "밤새 안전을 지켰다. 지쳤지만 새 생존자를 발견했다.",
+        resultText: "지시는 군더더기가 없었다. 지쳤지만 밤을 무사히 넘겼고, 새벽에 새 생존자가 문을 두드렸다.",
       },
       {
         id: "e06_c",
-        text: "각자 방에서 조용히 잠든다",
+        text: "다들 지쳤다며 각자 방에서 잠든다",
         effect: { health: -5, mental: -15, survivors: -10 },
         resultText:
-          "밤사이 좀비가 침입했다. 보초가 없어 대응이 늦었고 4명이 감염됐다.",
+          "혼자 자리를 지키다 잠든 사람이 있었다. 밤사이 좀비가 침입했다. 4명이 감염됐다. 아침에 아무 말도 없었다.",
       },
     ],
   },
@@ -206,7 +417,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "도서관",
     title: "교내 Wi-Fi 복구",
     description:
-      "도서관 AP 장비가 살아 있다. 인트라넷을 복구하면 건물 간 통신이 가능해진다.",
+      "도서관으로 오는 길에 AP 장비가 아직 살아 있는 걸 봤다. 인트라넷을 복구하면 건물 간 통신이 열린다.",
     choices: [
       {
         id: "e07_a",
@@ -242,7 +453,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "본관 로비",
     title: "출입 통제 시스템",
     description:
-      "본관 출입문의 전자 잠금장치가 아직 작동한다. 전원만 연결하면 원격 제어가 가능하다.",
+      "누군가 실수로 문을 열어두면 그게 끝이다. 본관 출입문 전자 잠금장치에 전원만 연결하면 원격으로 잠글 수 있다.",
     choices: [
       {
         id: "e08_a",
@@ -280,7 +491,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "실습동",
     title: "화학실 소독약 발견",
     description:
-      "화학실 약품 캐비닛이 잠겨 있다. 안에 소독약과 알코올이 보인다.",
+      "화학실 약품 캐비닛 안에 소독약과 알코올이 보였다. 자물쇠만 풀면 된다.",
     choices: [
       {
         id: "e09_a",
@@ -313,7 +524,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "주차장",
     title: "캠퍼스 정문 바리케이드",
     description:
-      "주차장 차량들을 이용하면 정문에 바리케이드를 세울 수 있다.",
+      "정문이 뚫리면 캠퍼스 전체가 끝이다. 주차장 차량들을 밀어서 정문을 막을 수 있다.",
     choices: [
       {
         id: "e10_a",
@@ -404,7 +615,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "실습동",
     title: "공구실 무기 제작",
     description:
-      "실습동 공구실에 각종 공구와 금속 자재가 있다. 무기를 만들 수 있을 것 같다.",
+      "실습동 공구실 문이 열려 있었다. 파이프, 렌치, 각종 금속 자재가 그대로 있었다.",
     choices: [
       {
         id: "e13_a",
@@ -438,7 +649,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "도서관",
     title: "생존 매뉴얼 발견",
     description:
-      "도서관에서 군사 서적과 응급처치 매뉴얼을 발견했다. 귀중한 지식이 될 수 있다.",
+      "도서관 서가에서 응급처치 매뉴얼과 군사 서적을 발견했다.",
     choices: [
       {
         id: "e14_a",
@@ -624,7 +835,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "주차장",
     title: "차량 내 물자 수색",
     description:
-      "주차장에 버려진 차량들이 있다. 트렁크와 좌석 아래에 쓸만한 물건이 있을지도 모른다.",
+      "식량이 빠르게 줄고 있었다. 주차장에 버려진 차량들 트렁크 안에 뭔가 남아있을 수도 있었다.",
     choices: [
       {
         id: "e20_a",
@@ -690,7 +901,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "운동장",
     title: "초기 경계 시스템",
     description:
-      "운동장 주변이 트여 있어 좀비가 접근하기 쉽다. 초기 경계 시스템이 필요하다.",
+      "운동장 쪽에서 좀비가 언제 들이닥칠지 알 수 없었다. 사방이 트여 사각지대가 너무 많다. 뭔가 경보 수단이 필요했다.",
     choices: [
       {
         id: "e22_a",
@@ -760,7 +971,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "실습동",
     title: "드론 정찰 시스템",
     description:
-      "실습동 창고에서 교육용 드론 3대를 발견했다. 배터리도 일부 남아 있다.",
+      "실습동 창고를 뒤지다 교육용 드론 3대와 남은 배터리를 발견했다.",
     choices: [
       {
         id: "m02_a",
@@ -775,10 +986,10 @@ export const EVENTS: readonly GameEvent[] = [
         effect: { mental: 5, food: -10, health: -8 },
         departmentBonus: {
           departmentId: "smart_sw",
-          extraEffect: { mental: 15 },
+          extraEffect: { food: 10, mental: 8 },
         },
         resultText:
-          "코딩에 집중하느라 보급과 건강을 소홀히 했다. 시스템은 완성됐지만 대가가 컸다.",
+          "코딩에 집중하느라 보급과 건강을 소홀히 했다. 그래도 자동 드론이 추가 식량 구역 두 곳을 찾아냈다.",
       },
       {
         id: "m02_c",
@@ -795,7 +1006,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "교수 연구실",
     title: "서버실 데이터 복구",
     description:
-      "교수 연구실 서버에 캠퍼스 설계도와 지하 통로 정보가 있을 수 있다.",
+      "교수 연구실 서버에 캠퍼스 설계도가 있을 것 같았다. 지하 통로 정보도 있을 수 있다.",
     choices: [
       {
         id: "m03_a",
@@ -835,7 +1046,7 @@ export const EVENTS: readonly GameEvent[] = [
       {
         id: "m04_a",
         text: "식량을 균등 분배한다",
-        effect: { food: -15, survivors: 10, mental: 8 },
+        effect: { food: -10, survivors: 10, mental: 8 },
         resultText:
           "모두 동의했다. 식량은 크게 줄었지만 신뢰가 올라갔다.",
       },
@@ -866,7 +1077,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "지하 창고",
     title: "지하 통로 발견",
     description:
-      "지하 창고에서 건물 간 연결 통로를 발견했다. 탐험할 것인가?",
+      "지하 창고 끝에서 좁은 통로 입구를 발견했다. 어디로 이어지는지 알 수 없었지만, 건물 간 연결 통로일 수 있었다.",
     choices: [
       {
         id: "m05_a",
@@ -898,12 +1109,12 @@ export const EVENTS: readonly GameEvent[] = [
     location: "옥상",
     title: "무전 신호 수신",
     description:
-      "옥상에서 희미한 무전 신호를 잡았다. '...구조대... 52일... 버텨라...'",
+      "옥상에서 희미한 무전 신호를 잡았다. '...구조대... 18일... 버텨라...'",
     choices: [
       {
         id: "m06_a",
         text: "모두에게 희망의 소식을 전한다",
-        effect: { mental: 20, food: -12, health: -3 },
+        effect: { mental: 20, food: -8, health: -3 },
         resultText: "환호가 터졌다! 하지만 축제 분위기에 식량 낭비가 심했다.",
       },
       {
@@ -931,7 +1142,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "실습동",
     title: "태양광 패널 설치",
     description:
-      "실습동 옥상에 교육용 태양광 패널이 있다. 전력을 안정적으로 확보할 기회다.",
+      "실습동 옥상에 교육용 태양광 패널이 설치돼 있었다. 연결하면 안정적인 전력을 확보할 수 있다.",
     choices: [
       {
         id: "m07_a",
@@ -1037,24 +1248,24 @@ export const EVENTS: readonly GameEvent[] = [
     location: "후문 앞",
     title: "다른 생존 그룹",
     description:
-      "후문 밖에 무장한 생존자 그룹이 나타났다. 교역을 원하지만 신뢰할 수 있을까?",
+      "후문 쪽에서 이상 움직임이 감지됐다. 무장한 생존자 그룹이 나타났다. 교역을 원하지만 신뢰할 수 있을까?",
     choices: [
       {
         id: "m10_a",
         text: "식량을 교환하고 정보를 나눈다",
         effect: { food: -8, mental: 12, survivors: 5 },
-        resultText: "유용한 정보와 새 동료를 얻었다. 식량은 줄었지만 네트워크가 생겼다.",
+        resultText: "협상 끝에 유용한 외부 정보를 얻었다. 식량은 줄었지만 든든해졌다.",
       },
       {
         id: "m10_b",
         text: "경계를 유지하며 거리를 둔다",
         effect: { mental: -5, health: -3, food: -3 },
-        resultText: "무사히 돌려보냈다. 하지만 동맹의 기회를 놓쳤을지도 모른다.",
+        resultText: "석연찮아 보였다. 무사히 돌려보냈지만 동맹 기회를 놓쳤을지도.",
       },
       {
         id: "m10_c",
         text: "문을 열어주고 합류를 제안한다",
-        effect: { survivors: 10, food: -15, mental: -8 },
+        effect: { survivors: 10, food: -10, mental: -8 },
         resultText:
           "합류했지만 식량 부담이 급증했다. 일부는 규율을 따르지 않아 마찰이 생겼다.",
       },
@@ -1287,7 +1498,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "지하 창고",
     title: "비밀 무기고 발견",
     description:
-      "지하 창고 벽 뒤에 숨겨진 공간을 발견했다. 옛날 민방위 시절 무기고였던 것 같다.",
+      "막다른 창고 끝 벽을 두드렸을 때 안쪽이 비어있는 소리가 났다. 벽 뒤에 숨겨진 공간이 있었다. 옛 민방위 무기고 같았다.",
     choices: [
       {
         id: "m18_a",
@@ -1424,7 +1635,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "본관 로비",
     title: "내부의 적",
     description:
-      "한 생존자가 밤사이 물자를 빼돌렸다. 그룹에 배신자가 있다.",
+      "새벽 순찰 중 창고 자물쇠가 뜯긴 걸 발견했다. 밤사이 누군가 물자를 빼돌렸다. 그룹 안에 배신자가 있다.",
     choices: [
       {
         id: "l04_a",
@@ -1459,7 +1670,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "옥상",
     title: "구조 통신 시스템",
     description:
-      "52일째가 다가온다. 구조 헬기에 우리 위치를 정확히 알려야 한다.",
+      "18일째가 다가온다. 헬기가 온다고 해도 우리 위치를 알아야 내려온다. 신호를 보내야 한다.",
     choices: [
       {
         id: "l05_a",
@@ -1495,13 +1706,13 @@ export const EVENTS: readonly GameEvent[] = [
     location: "체육관",
     title: "마지막 밤",
     description:
-      "내일이면 구조대가 온다. 하지만 오늘 밤, 역대 최대 규모의 좀비 무리가 접근 중이다.",
+      "내일이면 구조대가 온다. '이 밤만 버티자.' 누군가 말했다. 의료 키트를 점검하는 손이 있었고, 말없이 출입구 앞에 선 사람이 있었다. 역대 최대 규모의 좀비 무리가 접근 중이다.",
     choices: [
       {
         id: "l06_a",
         text: "전원이 함께 최후의 결전을 준비한다",
         effect: { mental: 20, health: -20, survivors: -10 },
-        resultText: "모두가 하나가 되었다. 이 밤만 버티면 된다! 하지만 대가는 컸다.",
+        resultText: "선두에 선 사람이 있었다. 부상자를 처치하는 손이 있었다. 마지막까지 자리를 지킨 사람이 있었다. 대가는 컸지만 밤을 넘겼다.",
       },
       {
         id: "l06_b",
@@ -1512,13 +1723,13 @@ export const EVENTS: readonly GameEvent[] = [
           extraEffect: { mental: 12, health: 8 },
         },
         resultText:
-          "전 시스템 가동에 전력과 자원이 소진됐다. 방어는 됐지만 내일 먹을 게 없다.",
+          "전 시스템 가동에 전력과 자원이 소진됐다. '덕분에 살았다.' 누군가 말했다. 방어는 됐지만 내일 먹을 게 없다.",
       },
       {
         id: "l06_c",
         text: "가장 견고한 방에 모여서 버틴다",
         effect: { health: 5, mental: -15, survivors: -8 },
-        resultText: "체력은 아꼈지만 공포에 시달렸다. 밖에서 비명이 들렸다.",
+        resultText: "체력은 아꼈지만 공포에 시달렸다. 밖에서 비명이 들렸다. 누군가 손을 꽉 쥐었다.",
       },
     ],
   },
@@ -1529,7 +1740,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "지하 창고",
     title: "비상 발전기 발견",
     description:
-      "지하 창고 깊숙한 곳에서 디젤 비상 발전기를 발견했다. 연료도 조금 남아 있다.",
+      "지하 창고 깊숙한 곳에서 디젤 비상 발전기를 발견했다. 연료도 조금 남아 있었다.",
     choices: [
       {
         id: "l07_a",
@@ -1628,7 +1839,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "교수 연구실",
     title: "감염 초기 증상 연구",
     description:
-      "교수 연구실에서 좀비 바이러스 초기 증상에 관한 연구 데이터를 발견했다. 감염 판별에 도움이 될 수 있다.",
+      "교수 연구실에서 좀비 바이러스 초기 증상에 관한 연구 데이터를 발견했다. 논문을 펼치자마자 분위기가 굳었다. 이걸 알면 살 수 있다.",
     choices: [
       {
         id: "m20_a",
@@ -1638,13 +1849,13 @@ export const EVENTS: readonly GameEvent[] = [
           departmentId: "smart_ee",
           extraEffect: { health: 10, mental: 8 },
         },
-        resultText: "감염 조기 발견 장치를 완성했다. 이제 증상이 나타나기 전에 격리할 수 있다.",
+        resultText: "캘리브레이션을 마쳤다. 감염 조기 발견 장치가 완성됐다. 증상이 나타나기 전에 격리할 수 있다.",
       },
       {
         id: "m20_b",
         text: "데이터를 읽고 증상 체크리스트를 만든다",
         effect: { health: 5, mental: 5, food: -5 },
-        resultText: "육안으로 판별할 수 있는 가이드를 만들었다. 완벽하진 않지만 도움이 된다.",
+        resultText: "항목 하나하나를 확인했다. 완벽하진 않지만 이제 누구나 판별할 수 있다.",
       },
       {
         id: "m20_c",
@@ -1858,13 +2069,13 @@ export const EVENTS: readonly GameEvent[] = [
     location: "기숙사",
     title: "감염 의심자 2차 발생",
     description:
-      "한 생존자의 팔에 물린 자국이 발견됐다. 감염까지 시간이 얼마 안 남았을 수 있다.",
+      "한 생존자의 팔에 물린 자국이 발견됐다. 상처를 직접 확인한 사람이 말이 없었다. 감염까지 시간이 얼마 안 남았을 수 있다.",
     choices: [
       {
         id: "l12_a",
         text: "즉시 격리하고 관찰한다",
         effect: { health: 8, survivors: -10, mental: -8 },
-        resultText: "격리했지만 좀비화가 진행됐다. 안전을 지켰지만 마음이 무겁다.",
+        resultText: "격리 기준을 정했다. 좀비화가 진행됐고 안전을 지켰지만, 방 밖에서 한참을 서 있는 사람이 있었다.",
       },
       {
         id: "l12_b",
@@ -1888,7 +2099,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "지하 창고",
     title: "지하 탈출로 개척",
     description:
-      "지하 통로가 캠퍼스 밖으로 이어지는 것 같다. 비상 탈출로로 쓸 수 있을지도.",
+      "지하 통로가 캠퍼스 밖으로 이어지는 것 같다. 구조대가 못 오는 최악의 경우를 대비해, 자체 비상 탈출로를 확보해 두어야 한다.",
     choices: [
       {
         id: "l13_a",
@@ -2108,7 +2319,7 @@ export const EVENTS: readonly GameEvent[] = [
     location: "도서관",
     title: "도서관 비밀 금고",
     description:
-      "도서관 지하 서고에서 잠긴 금고를 발견했다. 교직원용 비상 물자가 들어있을 수 있다.",
+      "이 학교 어딘가에 교직원용 비상 물자가 있을 것이었다. 도서관 지하 서고를 뒤지다 잠긴 금고를 발견했다.",
     choices: [
       {
         id: "l20_a",
@@ -2179,13 +2390,13 @@ export const EVENTS: readonly GameEvent[] = [
     choices: [
       {
         id: "l22_a",
-        text: "AI 의료 가이드를 검색해 수술을 시도한다",
+        text: "미리 다운받아 둔 의료 데이터베이스로 수술 과정을 확인한다",
         effect: { health: 10, food: -8, mental: -8 },
         departmentBonus: {
           departmentId: "smart_sw",
           extraEffect: { health: 10, mental: 5 },
         },
-        resultText: "프로그램이 수술 단계를 안내했다. 떨리는 손으로 성공했지만 트라우마가 남았다.",
+        resultText: "오프라인 저장 데이터가 수술 단계를 안내했다. 떨리는 손으로 성공했지만 트라우마가 남았다.",
       },
       {
         id: "l22_b",
@@ -2248,7 +2459,7 @@ export const SPECIAL_EVENTS: readonly GameEvent[] = [
     choices: [
       {
         id: "sp02_a",
-        text: "52일은 변함없다고 생존자들을 안심시킨다",
+        text: "18일은 변함없다고 생존자들을 안심시킨다",
         effect: { mental: 5, food: -5, survivors: -3 },
         resultText: "불안하지만 리더의 확신에 다수가 따랐다. 일부는 의심의 눈초리를 보낸다.",
       },
@@ -2426,20 +2637,20 @@ export const SPECIAL_EVENTS: readonly GameEvent[] = [
     location: "옥상",
     title: "긴급 속보: 백신 개발 소식",
     description:
-      "라디오에서 희망적인 뉴스가 흘러나온다. '서울대 연구팀이 좀비 바이러스 백신 1차 개발에 성공했습니다. 대량 생산까지는 수 주가 소요될 전망...'",
+      "라디오에서 희망적인 뉴스가 흘러나온다. '서울대 연구팀이 좀비 바이러스 백신 1차 개발에 성공했습니다. 구조대 파견은 예정대로 진행됩니다...'",
     isSpecial: true,
     choices: [
       {
         id: "sp08_a",
         text: "모두에게 알려 사기를 높인다",
         effect: { mental: 20, food: -10, health: -3 },
-        resultText: "환호가 터졌다! 희망이 생기자 모두가 활기를 되찾았다. 축제 분위기에 식량 소모가 컸다.",
+        resultText: "환호가 터졌다! 구조대가 온다는 사실이 더 실감났다. 축제 분위기에 식량 소모가 컸다.",
       },
       {
         id: "sp08_b",
         text: "냉정하게 상황을 분석하고 계획을 세운다",
         effect: { mental: 10, food: -5, health: -3 },
-        resultText: "백신이 와도 도달까지 시간이 걸린다. 현실적 계획을 세워 모두가 납득했다.",
+        resultText: "백신보다 구조대가 먼저 온다. 구조까지 버티는 데 집중하자고 모두를 설득했다.",
       },
       {
         id: "sp08_c",
@@ -2580,6 +2791,108 @@ export const SPECIAL_EVENTS: readonly GameEvent[] = [
         text: "건물 안에서 숨어 지나가길 기다린다",
         effect: { mental: -15, health: -5, food: -10 },
         resultText: "좀비 킹이 캠퍼스에 눌러앉았다. 이동이 완전히 제한되어 식량 확보가 불가능해졌다.",
+      },
+    ],
+  },
+  // --- 정전 이벤트 (플래시라이트 모드 트리거) ---
+  {
+    id: "sp_blackout",
+    phase: "mid",
+    tag: "defense",
+    location: "캠퍼스 전역",
+    title: "완전 정전",
+    description:
+      "비상등이 하나씩 꺼지기 시작했다. 캠퍼스 전체가 암흑 속으로 잠기는 데 채 1분이 걸리지 않았다. 발전기 연료가 바닥났거나, 누군가 고의로 차단한 것이다. 이제 어둠이 일상이 된다.",
+    isSpecial: true,
+    choices: [
+      {
+        id: "sp_blackout_a",
+        text: "비상 발전기를 찾아 일부 구역 복구를 시도한다",
+        effect: { health: -10, mental: 8, food: -8 },
+        resultText:
+          "발전기를 찾았지만 연료는 거의 없었다. 핵심 구역에만 희미한 불빛이 돌아왔다. 나머지 구역은 여전히 어둠 속이다. 손전등이 지금부터 가장 중요한 장비가 됐다.",
+      },
+      {
+        id: "sp_blackout_b",
+        text: "어둠을 이용해 움직임을 최소화하고 조용히 버틴다",
+        effect: { food: -5, survivors: -8, mental: -5 },
+        resultText:
+          "어둠 속에서 소리만으로 판단해야 했다. 몇 명이 공황에 빠져 이탈했다. 남은 사람들은 더 조용해졌다. 침묵이 새로운 언어가 됐다.",
+      },
+      {
+        id: "sp_blackout_c",
+        text: "손전등을 배분하고 야간 작전 체계로 전환한다",
+        effect: { mental: -12, survivors: 8, food: -10 },
+        resultText:
+          "혼란 속에서도 체계를 잡았다. 야간 경계조를 편성하고 배터리 수량을 파악했다. 어둠에 적응하는 데 시간이 걸렸지만, 이제는 어둠이 오히려 우리 편이다.",
+      },
+    ],
+  },
+  // --- 군 헬기 격추 (필수 이벤트 atTurn 25) ---
+  {
+    id: "sp_heli_down",
+    phase: "late",
+    tag: "morale",
+    location: "캠퍼스 외곽",
+    title: "군 헬기 격추 신호 수신",
+    description:
+      "무전기에서 단편적인 신호가 잡혔다. '...브라보-7 격추 확인... 구조 일정 재검토 중...' 30일이라는 숫자가 흔들린다.",
+    isSpecial: true,
+    choices: [
+      {
+        id: "sp_heli_down_a",
+        text: "신호를 분석해 정확한 상황을 파악하려 한다",
+        effect: { mental: -10, food: -5, health: -3 },
+        resultText:
+          "단편 신호만으로는 전체 상황을 알 수 없었다. 격추가 맞다면 구조 일정이 달라질 수 있다. 하지만 확인할 방법이 없다. 오늘 하루를 버티는 것만 생각하기로 했다.",
+      },
+      {
+        id: "sp_heli_down_b",
+        text: "생존자들에게 알리고 최악을 대비해 물자를 재점검한다",
+        effect: { mental: -18, food: -8, survivors: -5 },
+        resultText:
+          "공황이 번졌다. 일부는 포기했고, 일부는 더 단단해졌다. 물자를 다시 세고 최악을 가정했다. 30일이 아닐 수도 있다는 것을 처음으로 입 밖에 냈다.",
+      },
+      {
+        id: "sp_heli_down_c",
+        text: "혼자만 알고 있기로 한다. 희망이 필요하다",
+        effect: { mental: -5, health: -5, food: -3 },
+        resultText:
+          "말하지 않았다. 다들 각자의 숫자를 세고 있었다. 당신만 다른 숫자를 세기 시작했다. 그게 더 나은 선택인지 끝까지 확신할 수 없었다.",
+      },
+    ],
+  },
+  // --- 비상 발전기 복구 (sp_blackout 이후 복전 — flashlightMode: false 복귀) ---
+  {
+    id: "sp_lights_restored",
+    phase: "mid",
+    tag: "craft",
+    location: "지하 기계실",
+    title: "발전기 재가동",
+    description:
+      "기계공학과 선배가 며칠째 혼자 지하실을 뒤졌다. 낡은 비상 발전기를 찾아낸 것이다. 연료도 얼마 남지 않았지만 핵심 구역에 불을 다시 켤 수 있다. 어둠 속에서 며칠을 버틴 뒤 처음으로 복도에 불이 들어왔다.",
+    isSpecial: true,
+    choices: [
+      {
+        id: "sp_lights_restored_a",
+        text: "발전기를 최대 출력으로 돌려 캠퍼스 전체에 불을 켠다",
+        effect: { mental: 18, food: -12, survivors: 5, health: -5 },
+        resultText:
+          "불빛이 돌아왔다. 함성이 터져 나왔다. 하지만 연료가 빠르게 닳았다. 이 빛이 얼마나 갈지 아무도 몰랐다. 지금 이 순간만큼은 살아있다는 느낌이 들었다.",
+      },
+      {
+        id: "sp_lights_restored_b",
+        text: "핵심 구역만 켜고 연료를 아낀다",
+        effect: { mental: 10, food: -5, health: 5 },
+        resultText:
+          "전부는 아니었지만 충분했다. 의무실과 식량 창고에 불이 들어왔다. 어둠 속에서 놓쳤던 것들이 보이기 시작했다. 조심스러운 안도감이 퍼졌다.",
+      },
+      {
+        id: "sp_lights_restored_c",
+        text: "발전기를 비상용으로 남겨두고 지금은 켜지 않는다",
+        effect: { mental: -8, food: 5, survivors: -5 },
+        resultText:
+          "아직 때가 아니라고 판단했다. 발전기를 감추고 아무에게도 알리지 않았다. 몇몇은 눈치챘다. 그들의 시선이 따가웠다. 옳은 선택인지 모르겠다.",
       },
     ],
   },

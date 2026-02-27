@@ -7,6 +7,7 @@ const DANGEROUS_PATTERN = /[<>"'&]/g;
 const VALID_ENDINGS: readonly string[] = [
   "rescued",
   "perfect_rescue",
+  "narrow_escape",
   "infected",
   "starvation",
   "alone",

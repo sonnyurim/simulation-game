@@ -51,6 +51,8 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
 }
 
 :root {
@@ -87,6 +89,8 @@
   --success-foreground: oklch(0.98 0 0);
   --warning: oklch(0.7 0.18 80);
   --warning-foreground: oklch(0.15 0 0);
+  --info: oklch(0.60 0.15 240);
+  --info-foreground: oklch(0.98 0 0);
 
   --sidebar: oklch(0.12 0.02 15);
   --sidebar-foreground: oklch(0.92 0 0);
@@ -105,6 +109,30 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Screen flicker — sharp bursts, 99% of time at full opacity */
+@keyframes notice-flicker {
+  0%, 100% { opacity: 1; }
+  14.9% { opacity: 1; }
+  15%   { opacity: 0.25; }
+  15.2% { opacity: 1; }
+  15.4% { opacity: 0.45; }
+  15.6% { opacity: 1; }
+  44.9% { opacity: 1; }
+  45%   { opacity: 0.15; }
+  45.25%{ opacity: 0.85; }
+  45.5% { opacity: 0.3; }
+  45.75%{ opacity: 1; }
+  74.9% { opacity: 1; }
+  75%   { opacity: 0.2; }
+  75.2% { opacity: 1; }
+  75.5% { opacity: 0.4; }
+  75.8% { opacity: 1; }
+}
+
+.animate-notice-flicker {
+  animation: notice-flicker 5s linear infinite;
 }
 
 /* Home screen animations */
@@ -149,6 +177,15 @@
 
 .animate-float-delay {
   animation: float 3s ease-in-out 1.5s infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
 }
 
 @keyframes soft-blink {

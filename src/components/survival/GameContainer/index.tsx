@@ -2,21 +2,23 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 
+import { BroadcastScreen } from "@/components/survival/BroadcastScreen";
 import { ChoiceButton } from "@/components/survival/ChoiceButton";
 import { DepartmentSelect } from "@/components/survival/DepartmentSelect";
-import { EmergencySupply } from "@/components/survival/EmergencySupply";
+import { DepartmentSkill } from "@/components/survival/DepartmentSkill";
 import { EventCard } from "@/components/survival/EventCard";
 import { GameOverScreen } from "@/components/survival/GameOverScreen";
 import { ResourceBars } from "@/components/survival/ResourceBars";
 import { TurnCounter } from "@/components/survival/TurnCounter";
 import { VictoryScreen } from "@/components/survival/VictoryScreen";
 
+import { cn } from "@/lib/utils";
 import { selectEvent } from "@/lib/event-engine";
 import {
   createInitialState,
   selectDepartment,
   applyChoice,
-  applyEmergencySupply,
+  applySkill,
   checkGameEnd,
   transitionToEnd,
   setCurrentEvent,
@@ -25,16 +27,22 @@ import {
   clearSession,
 } from "@/lib/game-logic";
 
-import type { GameState, Choice, Department, EndingType } from "@/types/survival";
+import type { GameState, Choice, Department, EndingType, Screen } from "@/types/survival";
 
 function getInitialState(): GameState {
   const saved = loadFromSession();
   return saved ?? createInitialState();
 }
 
-export function GameContainer() {
+interface GameContainerProps {
+  readonly onScreenChange?: (screen: Screen) => void;
+  readonly onFlashlightModeChange?: (active: boolean) => void;
+}
+
+export function GameContainer({ onScreenChange, onFlashlightModeChange }: GameContainerProps = {}) {
   const [state, setState] = useState<GameState>(getInitialState);
   const [ending, setEnding] = useState<EndingType | null>(null);
+  const [choicesVisible, setChoicesVisible] = useState(false);
   const initialized = useRef(false);
 
   // On mount: check if restored state has an ending
@@ -54,7 +62,19 @@ export function GameContainer() {
     saveToSession(state);
   }, [state]);
 
-  // Advance to next event when needed — triggered lazily
+  // Notify parent when screen changes
+  useEffect(() => {
+    onScreenChange?.(state.screen);
+  }, [state.screen, onScreenChange]);
+
+  // Notify parent when flashlight mode activates
+  useEffect(() => {
+    if (state.flashlightMode) {
+      onFlashlightModeChange?.(true);
+    }
+  }, [state.flashlightMode, onFlashlightModeChange]);
+
+  // Advance to next event
   const ensureEvent = useCallback(() => {
     if (state.screen === "playing" && !state.currentEvent) {
       const event = selectEvent(state);
@@ -62,44 +82,66 @@ export function GameContainer() {
     }
   }, [state]);
 
-  // Trigger event selection after render when no event is present
   useEffect(() => {
     if (state.screen === "playing" && !state.currentEvent) {
       queueMicrotask(ensureEvent);
     }
   }, [state.screen, state.currentEvent, ensureEvent]);
 
+  // Reset choices visibility when event changes
+  const eventId = state.currentEvent?.id;
+  useEffect(() => {
+    setChoicesVisible(false);
+  }, [eventId]);
+
+  const handleTypingComplete = useCallback(() => {
+    setChoicesVisible(true);
+  }, []);
+
   const handleDepartmentSelect = useCallback((dept: Department) => {
     setState((prev) => selectDepartment(prev, dept));
+  }, []);
+
+  const handleBroadcastComplete = useCallback(() => {
+    setState((prev) => ({ ...prev, screen: "playing" as Screen }));
   }, []);
 
   const handleChoice = useCallback((choice: Choice) => {
     setState((prev) => {
       if (!prev.currentEvent) return prev;
-
       const next = applyChoice(prev, prev.currentEvent, choice);
-
       const endCheck = checkGameEnd(next);
       if (endCheck) {
         setEnding(endCheck);
         return transitionToEnd(next, endCheck);
       }
-
       return next;
     });
   }, []);
 
-  const handleEmergencySupply = useCallback(() => {
-    setState((prev) => applyEmergencySupply(prev));
+  const handleSkill = useCallback(() => {
+    setState((prev) => {
+      const next = applySkill(prev);
+      const endCheck = checkGameEnd(next);
+      if (endCheck) {
+        setEnding(endCheck);
+        return transitionToEnd(next, endCheck);
+      }
+      return next;
+    });
   }, []);
 
   const handleRestart = useCallback(() => {
     clearSession();
     setEnding(null);
-    setState({ ...createInitialState(), screen: "departmentSelect" });
+    setState(createInitialState());
   }, []);
 
   // --- Screen rendering ---
+
+  if (state.screen === "broadcast") {
+    return <BroadcastScreen onComplete={handleBroadcastComplete} />;
+  }
 
   if (state.screen === "departmentSelect") {
     return <DepartmentSelect onSelect={handleDepartmentSelect} />;
@@ -112,6 +154,7 @@ export function GameContainer() {
         turn={state.turn}
         resources={state.resources}
         emergencyUsed={state.emergencyUsed}
+        skillUsed={state.skillUsed}
         department={state.department?.id ?? "free_major"}
         onRestart={handleRestart}
       />
@@ -125,6 +168,7 @@ export function GameContainer() {
         turn={state.turn}
         resources={state.resources}
         emergencyUsed={state.emergencyUsed}
+        skillUsed={state.skillUsed}
         department={state.department?.id ?? "free_major"}
         onRestart={handleRestart}
       />
@@ -135,32 +179,63 @@ export function GameContainer() {
   const eventToShow = state.currentEvent;
 
   return (
-    <div className="flex min-h-dvh flex-col justify-center gap-5 py-6">
-      <TurnCounter turn={state.turn} />
-      <ResourceBars resources={state.resources} />
-      <EmergencySupply
-        emergencyUsed={state.emergencyUsed}
-        onUse={handleEmergencySupply}
+    <div className="relative flex min-h-dvh flex-col justify-center px-6 py-5">
+      {/* Vignette overlay */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 50%, transparent 35%, oklch(0.05 0.01 15 / 0.88) 100%)",
+        }}
       />
 
-      {eventToShow && (
-        <div className="rounded-xl border border-border bg-card p-5">
-          <EventCard event={eventToShow} />
-          <div className="mt-4 space-y-2.5">
-            {eventToShow.choices.map((choice) => (
-              <ChoiceButton
-                key={choice.id}
-                choice={choice}
-                department={state.department}
-                onSelect={handleChoice}
-                disabled={false}
-                hideEffects={eventToShow.isSpecial}
-              />
-            ))}
-          </div>
+      <div className="relative z-10">
+        <TurnCounter turn={state.turn} />
+        <div className="mt-2">
+          <ResourceBars resources={state.resources} />
         </div>
-      )}
 
+        {/* Event + choices */}
+        {eventToShow && (
+          <div key={eventToShow.id} className="mt-10 animate-fade-in">
+            <EventCard
+              event={eventToShow}
+              previousResult={state.lastChoiceResult}
+              onTypingComplete={handleTypingComplete}
+            />
+            <div
+              className={cn(
+                "mt-8 border-t border-border transition-all duration-500",
+                choicesVisible
+                  ? "translate-y-0 opacity-100"
+                  : "pointer-events-none translate-y-3 opacity-0",
+              )}
+            >
+              {eventToShow.choices.map((choice) => (
+                <ChoiceButton
+                  key={choice.id}
+                  choice={choice}
+                  department={state.department}
+                  onSelect={handleChoice}
+                  disabled={false}
+                  hideEffects={eventToShow.isSpecial}
+                />
+              ))}
+
+              {/* Skill as a subtle bottom option */}
+              {state.department && (
+                <div className="border-t border-border/20">
+                  <DepartmentSkill
+                    department={state.department}
+                    skillUsed={state.skillUsed}
+                    onUse={handleSkill}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

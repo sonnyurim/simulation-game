@@ -18,6 +18,7 @@ const EFFECT_KEYS: ResourceKey[] = ["health", "food", "survivors", "mental"];
 interface EffectBadge {
   readonly icon: string;
   readonly label: string;
+  readonly value: number;
   readonly isPositive: boolean;
 }
 
@@ -33,6 +34,7 @@ function getEffectBadges(effect: ResourceEffect, extraEffect?: ResourceEffect): 
     badges.push({
       icon: RESOURCE_ICONS[key],
       label: RESOURCE_LABELS[key],
+      value: total,
       isPositive: total > 0,
     });
   }
@@ -60,33 +62,41 @@ export function ChoiceButton({
   return (
     <button
       className={cn(
-        "w-full rounded-lg bg-secondary/60 px-6 py-4 text-left transition-colors hover:bg-secondary",
-        disabled && "pointer-events-none opacity-50",
+        "group w-full border-b border-border/30 py-4 text-left last:border-0",
+        "transition-all duration-150",
+        disabled && "pointer-events-none opacity-40",
       )}
       onClick={() => onSelect(choice)}
       disabled={disabled}
     >
-      <p className="text-base font-semibold text-foreground">
-        {choice.text}
-      </p>
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-muted-foreground">
+          →
+        </span>
+        <div className="flex-1 space-y-2">
+          <p className="text-sm leading-relaxed text-foreground/90 transition-colors group-hover:text-foreground">
+            {choice.text}
+          </p>
 
-      {!hideEffects && badges.length > 0 && (
-        <div className="mt-2.5 flex flex-wrap gap-2">
-          {badges.map((badge) => (
-            <span
-              key={badge.label}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium",
-                badge.isPositive
-                  ? "bg-emerald-900/60 text-emerald-300"
-                  : "bg-red-900/60 text-red-300",
-              )}
-            >
-              {badge.icon} {badge.label} {badge.isPositive ? "↗" : "↘"}
-            </span>
-          ))}
+          {!hideEffects && badges.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {badges.map((badge) => (
+                <span
+                  key={badge.label}
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums",
+                    badge.isPositive
+                      ? "bg-success/15 text-success"
+                      : "bg-destructive/15 text-destructive",
+                  )}
+                >
+                  {badge.icon} {badge.label} {badge.isPositive ? "+" : ""}{badge.value}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </button>
   );
 }

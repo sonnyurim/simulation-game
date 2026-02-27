@@ -14,6 +14,30 @@ export interface Department {
   readonly description: string;
 }
 
+// --- Department Skill ---
+
+export interface DepartmentSkill {
+  readonly departmentId: string;
+  readonly name: string;
+  readonly icon: string;
+  readonly description: string;
+  readonly maxUses: number;
+  readonly effect: ResourceEffect;
+  readonly resultText: string;
+  readonly resultTextFail?: string; // For isRandom: bad outcome text
+  readonly isRandom?: boolean;
+}
+
+// --- Character (NPC) ---
+
+export interface Character {
+  readonly id: string;
+  readonly name: string;
+  readonly role: string;
+  readonly isAlive: boolean;
+  readonly metAtTurn: number;
+}
+
 // --- Events ---
 
 export type Phase = "early" | "mid" | "late";
@@ -55,6 +79,7 @@ export interface GameEvent {
   readonly description: string;
   readonly choices: readonly Choice[];
   readonly isSpecial?: boolean;
+  readonly starterDepartmentId?: string; // Fixed first event for this department
   readonly resourceCondition?: {
     readonly resource: ResourceKey;
     readonly below: number;
@@ -64,7 +89,9 @@ export interface GameEvent {
 // --- Game State ---
 
 export type Screen =
+  | "broadcast"
   | "departmentSelect"
+  | "intro"
   | "playing"
   | "gameOver"
   | "victory";
@@ -85,7 +112,10 @@ export interface GameState {
   readonly usedEventIds: readonly string[];
   readonly recentTags: readonly EventTag[];
   readonly emergencyUsed: number;
+  readonly skillUsed: number;
+  readonly characters: readonly Character[];
   readonly history: readonly TurnRecord[];
+  readonly flashlightMode: boolean;
 }
 
 // --- Scoring ---
@@ -103,15 +133,26 @@ export interface ScoreBreakdown {
 export type EndingType =
   | "rescued"
   | "perfect_rescue"
+  | "narrow_escape"
   | "infected"
   | "starvation"
   | "alone"
   | "breakdown";
 
+export type StyleVariant =
+  | "skill_max"
+  | "skill_none"
+  | "food_low"
+  | "mental_low"
+  | "survivors_low"
+  | "health_low"
+  | "default";
+
 export interface Ending {
   readonly type: EndingType;
   readonly title: string;
   readonly description: string;
+  readonly styleSuffixes?: Partial<Record<StyleVariant, string>>;
 }
 
 // API types are in features/survival/types.ts

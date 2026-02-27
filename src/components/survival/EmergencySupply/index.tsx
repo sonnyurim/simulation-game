@@ -21,13 +21,13 @@ export function EmergencySupply({ emergencyUsed, onUse }: EmergencySupplyProps) 
           "flex items-center gap-4 rounded-full px-8 py-4 text-base font-medium transition-colors",
           isDisabled
             ? "cursor-not-allowed bg-muted text-muted-foreground opacity-50"
-            : "bg-amber-600 text-white hover:bg-amber-500 active:bg-amber-700",
+            : "bg-warning text-warning-foreground hover:bg-warning/90 active:bg-warning/80",
         )}
       >
         <span>🆘 긴급 구조 팩 ({remaining}회 남음)</span>
         <span className={cn(
           "font-semibold",
-          isDisabled ? "text-muted-foreground" : "text-amber-200",
+          isDisabled ? "text-muted-foreground" : "text-warning-foreground",
         )}>
           최종 점수 -100점
         </span>
