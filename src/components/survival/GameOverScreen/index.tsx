@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 import { saveResultApi } from "@/features/survival/api";
@@ -38,6 +38,7 @@ export function GameOverScreen({
   onRestart,
 }: GameOverScreenProps) {
   const router = useRouter();
+  const hasSaved = useRef(false);
   const endingData = ENDINGS[ending];
   const score = calculateScore(turn, resources, emergencyUsed);
   const icon = ENDING_ICONS[ending] ?? "📉";
@@ -45,6 +46,8 @@ export function GameOverScreen({
   const styleSuffix = endingData.styleSuffixes?.[styleVariant];
 
   useEffect(() => {
+    if (hasSaved.current) return;
+    hasSaved.current = true;
     const nickname = sessionStorage.getItem("game-nickname") ?? "익명";
     saveResultApi({
       nickname,

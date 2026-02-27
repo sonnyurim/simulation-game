@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 import { saveResultApi } from "@/features/survival/api";
@@ -39,6 +39,7 @@ export function VictoryScreen({
   onRestart,
 }: VictoryScreenProps) {
   const router = useRouter();
+  const hasSaved = useRef(false);
   const endingData = ENDINGS[ending];
   const score = calculateScore(turn, resources, emergencyUsed);
   const isPerfect = ending === "perfect_rescue";
@@ -47,6 +48,8 @@ export function VictoryScreen({
   const styleSuffix = endingData.styleSuffixes?.[styleVariant];
 
   useEffect(() => {
+    if (hasSaved.current) return;
+    hasSaved.current = true;
     const nickname = sessionStorage.getItem("game-nickname") ?? "익명";
     saveResultApi({
       nickname,
