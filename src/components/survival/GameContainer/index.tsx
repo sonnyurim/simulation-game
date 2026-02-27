@@ -67,11 +67,9 @@ export function GameContainer({ onScreenChange, onFlashlightModeChange }: GameCo
     onScreenChange?.(state.screen);
   }, [state.screen, onScreenChange]);
 
-  // Notify parent when flashlight mode activates
+  // Notify parent when flashlight mode changes
   useEffect(() => {
-    if (state.flashlightMode) {
-      onFlashlightModeChange?.(true);
-    }
+    onFlashlightModeChange?.(state.flashlightMode);
   }, [state.flashlightMode, onFlashlightModeChange]);
 
   // Advance to next event

@@ -40,7 +40,7 @@ export default function SurvivalPage() {
   const [screen, setScreen] = useState<Screen>("departmentSelect");
   const [flashlightMode, setFlashlightMode] = useState(false);
   const handleScreenChange = useCallback((s: Screen) => setScreen(s), []);
-  const handleFlashlightModeChange = useCallback(() => setFlashlightMode(true), []);
+  const handleFlashlightModeChange = useCallback((active: boolean) => setFlashlightMode(active), []);
 
   const showSidebar = screen === "departmentSelect";
 
